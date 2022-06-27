@@ -9,7 +9,7 @@
             <v-list-item
               v-for="(item, index) in $store.state.ligas"
               :key="index"
-              @click="league(item.id)"
+              @click="league(item.id, selectSeason)"
             >
               <span>
                 <img :src="item.logos.light" height="30" width="30" />
@@ -57,6 +57,7 @@ import api from "@/service/axios";
 
 @Component
 export default class Home extends Vue {
+  private loading = true;
   private liga: Array<object> = [];
   private season: Array<string> = ["2021", "2020", "2019", "2018", "2017"];
   private selectSeason = this.season[0];
@@ -64,16 +65,13 @@ export default class Home extends Vue {
 
   created() {
     api.get("bra.1/standings?season=2021&sort=asc").then(({ data }) => {
-      console.log(this.liga);
+      //console.log(this.liga);
 
       this.liga = data.data.standings;
-      console.log(this.liga);
-      console.log(this.$store.state.ligas);
+      //console.log(this.liga);
+      //console.log(this.$store.state.ligas);
     });
-  }
-  @Watch("selectSeason")
-  selectSeasonChanged(newValue: string) {
-    this.league(this.id);
+    this.league("bra.1", "2021");
   }
 
   headers = [
@@ -95,17 +93,23 @@ export default class Home extends Vue {
     { text: "Saldo de Gols", value: "stats[9].value" },
   ];
 
-  private league(id: string): void {
+  private league(id: string, season: string): void {
     this.id = id;
-    console.log(this.id);
+    //console.log(this.id);
     api
-      .get(`${this.id}/standings?season=${this.selectSeason}&sort=asc`)
+      .get(`${this.id}/standings?season=${season}&sort=asc`)
       .then(({ data }) => {
-        console.log(this.liga);
+        //console.log(this.liga);
 
         this.liga = data.data.standings;
         this.$forceUpdate();
       });
+  }
+  @Watch("selectSeason")
+  selectSeasonChanged(newValue: string) {
+    //console.log(newValue);
+    //console.log(this.id);
+    this.league(this.id, newValue);
   }
 }
 </script>
